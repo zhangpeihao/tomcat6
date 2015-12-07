@@ -1,3 +1,3 @@
 #/bin/bash
 
-docker build --rm -t tomcat:6 .
+docker build --rm -t jk-tomcat:6 .

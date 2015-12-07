@@ -1,18 +1,28 @@
-FROM java:6-jre
+FROM java:6-jdk
+MAINTAINER zhangpeihao@111.com.cn
+
+ADD apache-tomcat-6.0.37.tar.gz /tmp/apache-tomcat-6.0.37
+
+RUN cd /usr/local && \
+    mv /tmp/apache-tomcat-6.0.37/apache-tomcat-6.0.37 ./apache-tomcat-6.0.37 && \
+    ln -s ./apache-tomcat-6.0.37 ./tomcat && \
+    rm -f /usr/local/tomcat/conf/tomcat-users.xml
+
+ADD tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml
 
 ENV CATALINA_HOME /usr/local/tomcat
-ENV PATH $CATALINA_HOME/bin:$PATH
-RUN mkdir -p "$CATALINA_HOME"
-WORKDIR $CATALINA_HOME
 
-ENV TOMCAT_MAJOR 6
-ENV TOMCAT_VERSION 6.0.44
-ENV TOMCAT_TGZ_URL https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
+VOLUME /logs
+VOLUME /webapps
 
-RUN set -x \
-    && cd $CATALINA_HOME \
-	&& curl -fSL "$TOMCAT_TGZ_URL" -o tomcat.tar.gz \
-	&& tar -xvf tomcat.tar.gz --strip-components=1
+RUN rm -f /usr/local/tomcat/conf/logging.properties && \
+    rm -f /usr/local/tomcat/conf/server.xml
 
-EXPOSE 8080
-CMD ["catalina.sh", "run"]
+ADD logging.properties /usr/local/tomcat/conf/logging.properties
+ADD server.xml /usr/local/tomcat/conf/server.xml
+
+CMD /usr/local/tomcat/bin/startup.sh && tail -F /logs/catalina.out
+
+EXPOSE 80 8080
+
+
