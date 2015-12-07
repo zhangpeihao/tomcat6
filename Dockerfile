@@ -1,19 +1,19 @@
 FROM java:6-jre
 
 ENV CATALINA_HOME /usr/local/tomcat
+ENV PATH $CATALINA_HOME/bin:$PATH
+RUN mkdir -p "$CATALINA_HOME"
+WORKDIR $CATALINA_HOME
 
-ADD apache-tomcat-6.0.37.tar.gz /tmp
+ENV TOMCAT_MAJOR 6
+ENV TOMCAT_VERSION 6.0.44
+ENV TOMCAT_TGZ_URL https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
 
 RUN set -x \
-    mv /tmp/apache-tomcat-6.0.37 $CATALINA_HOME && \
-    cd $$CATALINA_HOME && \
-	rm bin/*.bat && \
-    rm -f /usr/local/tomcat/conf/tomcat-users.xml
-
-ADD tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml
-
-ENV PATH $CATALINA_HOME/bin:$PATH
-WORKDIR $CATALINA_HOME
+	&& curl -fSL "$TOMCAT_TGZ_URL" -o tomcat.tar.gz \
+	&& tar -xvf tomcat.tar.gz --strip-components=1 \
+	&& rm bin/*.bat \
+	&& rm tomcat.tar.gz*
 
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
