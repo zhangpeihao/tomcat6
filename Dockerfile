@@ -6,20 +6,13 @@ ADD apache-tomcat-6.0.37.tar.gz /tmp/apache-tomcat-6.0.37
 RUN cd /usr/local && \
     mv /tmp/apache-tomcat-6.0.37/apache-tomcat-6.0.37 ./apache-tomcat-6.0.37 && \
     ln -s ./apache-tomcat-6.0.37 ./tomcat && \
-    rm -f /usr/local/tomcat/conf/tomcat-users.xml
-
-ADD tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml
+    rm -rf /usr/local/tomcat/conf
 
 ENV CATALINA_HOME /usr/local/tomcat
 
 VOLUME /logs
 VOLUME /webapps
-
-RUN rm -f /usr/local/tomcat/conf/logging.properties && \
-    rm -f /usr/local/tomcat/conf/server.xml
-
-ADD logging.properties /usr/local/tomcat/conf/logging.properties
-ADD server.xml /usr/local/tomcat/conf/server.xml
+VOLUME /usr/local/tomcat/conf
 
 CMD /usr/local/tomcat/bin/startup.sh && tail -F /logs/catalina.out
 
